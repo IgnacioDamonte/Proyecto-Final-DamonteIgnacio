@@ -1,0 +1,39 @@
+{% extends "myapp1/base.html" %}
+
+{% block title %}Mouses{% endblock %}
+
+{% block content %}
+<div class="container d-flex flex-column justify-content-center" style="min-height: 80vh;">
+  <div class="text-center mb-4">
+    <h1>Lista de Mouses</h1>
+    <a class="btn btn-primary mt-3" href="{% url 'mouse_create' %}">Crear Nuevo Mouse</a>
+  </div>
+  <div class="row">
+    {% for mouse in mouses %}
+    <div class="col-md-4 mb-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">{{ mouse.nombre }}</h5>
+          <p class="card-text">
+            <strong>Descripción:</strong> {{ mouse.descripcion }}<br>
+            <strong>Fecha:</strong> {{ mouse.fecha }}<br>
+            <strong>Precio: </strong> ${{ mouse.precio }}
+          </p>
+          <a class="btn btn-warning btn-sm" href="{% url 'mouse_update' mouse.pk %}">Editar</a>
+          <a class="btn btn-danger btn-sm float-end" href="{% url 'mouse_delete' mouse.pk %}">Eliminar</a>
+        </div>
+        <div class="card-footer text-center">
+          <a class="btn btn-info btn-sm" href="{% url 'mouse_detail' mouse.pk %}">Detalles</a>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+      <div class="alert alert-info text-center" role="alert">
+        No hay mouses disponibles.
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

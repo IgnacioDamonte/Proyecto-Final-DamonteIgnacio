@@ -1,0 +1,17 @@
+{% extends "myapp1/base.html" %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="height: 100vh;">
+  <div class="form-container">
+    <h2 class="text-center mb-4">Iniciar sesión</h2>
+    <form method="post" action="{% url 'Login' %}">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-primary">Iniciar sesión</button>
+    </form>
+    {% if msg_login %}
+    <div class="alert alert-danger mt-3">{{ msg_login }}</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

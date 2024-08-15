@@ -1,0 +1,21 @@
+{% extends 'myapp1/base.html' %}
+
+{% block title %} Editar Usuario {% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center" style="height: 80vh; align-items: center;">
+  <div class="d-flex flex-column p-4 border rounded shadow-sm bg-light">
+    <h2 class="mb-4 text-center">Editar Usuario</h2>
+    <form action="" method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <table class="mb-3 w-100">
+        {{ form.as_table }}
+      </table>
+      <div class="d-flex justify-content-between">
+        <a class="btn btn-secondary me-2" href="{% url 'CambiarPass' %}">Cambiar Contraseña</a>
+        <input type="submit" value="Actualizar" class="btn btn-primary">
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

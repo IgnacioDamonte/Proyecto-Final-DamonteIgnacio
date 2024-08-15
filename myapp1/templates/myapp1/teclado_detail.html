@@ -1,0 +1,33 @@
+{% extends "myapp1/base.html" %}
+
+{% block title %}Detalle de Teclado{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="row justify-content-center align-items-center min-vh-100">
+    <div class="col-md-10 col-lg-8">
+      <div class="card shadow-lg border-light">
+        <div class="card-body">
+          <h1 class="card-title mb-4 text-center">{{ teclado.nombre }}</h1>
+          <div class="mb-3">
+            <h5 class="card-subtitle mb-2"><strong>Descripción:</strong></h5>
+            <p class="card-text">{{ teclado.descripcion }}</p>
+          </div>
+          <div class="mb-3">
+            <h5 class="card-subtitle mb-2"><strong>Fecha:</strong></h5>
+            <p class="card-text">{{ teclado.fecha }}</p>
+          </div>
+          <div class="mb-3">
+            <h5 class="card-subtitle mb-2"><strong>Precio:</strong></h5>
+            <p class="card-text">{{ teclado.precio }}</p>
+          </div>
+          <div class="d-flex justify-content-between mt-4">
+            <a class="btn btn-primary" href="{% url 'teclado_update' teclado.pk %}">Editar</a>
+            <a class="btn btn-secondary" href="{% url 'teclado_list' %}">Volver a la lista</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

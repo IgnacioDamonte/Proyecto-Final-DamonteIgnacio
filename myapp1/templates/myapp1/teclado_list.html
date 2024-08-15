@@ -1,0 +1,39 @@
+{% extends "myapp1/base.html" %}
+
+{% block title %}Teclados{% endblock %}
+
+{% block content %}
+<div class="container d-flex flex-column justify-content-center" style="min-height: 80vh;">
+  <div class="text-center mb-4">
+    <h1 class="my-4">Lista de Teclados</h1>
+    <a class="btn btn-primary mt-3" href="{% url 'teclado_create' %}">Crear Nuevo Teclado</a>
+  </div>
+  <div class="row">
+    {% for teclado in teclados %}
+    <div class="col-md-4 mb-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">{{ teclado.nombre }}</h5>
+          <p class="card-text">
+            <strong>Descripción:</strong> {{ teclado.descripcion }}<br>
+            <strong>Fecha:</strong> {{ teclado.fecha }}<br>
+            <strong>Precio: </strong> ${{ teclado.precio }}
+          </p>
+          <a class="btn btn-warning btn-sm" href="{% url 'teclado_update' teclado.pk %}">Editar</a>
+          <a class="btn btn-danger btn-sm float-end" href="{% url 'teclado_delete' teclado.pk %}">Eliminar</a>
+        </div>
+        <div class="card-footer text-center">
+          <a class="btn btn-info btn-sm" href="{% url 'teclado_detail' teclado.pk %}">Detalles</a>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+      <div class="alert alert-info text-center" role="alert">
+        No hay teclados disponibles.
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
