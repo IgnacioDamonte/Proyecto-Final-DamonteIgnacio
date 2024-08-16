@@ -1,0 +1,27 @@
+{% extends "app/base.html" %}
+
+{% block title %}Actualizando Mouse{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="row min-vh-100 justify-content-center align-items-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow-lg border-light">
+        <div class="card-body">
+          <h1 class="card-title mb-4 text-center">Actualizando Mouse</h1>
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+              {{ form.as_p }}
+            </div>
+            <div class="d-flex justify-content-between">
+              <button type="submit" class="btn btn-primary">Guardar cambios</button>
+              <a class="btn btn-secondary" href="{% url 'mouse_list' %}">Cancelar</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

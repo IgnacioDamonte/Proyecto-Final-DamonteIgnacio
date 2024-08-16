@@ -1,0 +1,39 @@
+{% extends "app/base.html" %}
+
+{% block title %}Mousepads{% endblock %}
+
+{% block content %}
+<div class="container d-flex flex-column justify-content-center" style="min-height: 80vh;">
+  <div class="text-center mb-4">
+    <h1 class="my-4">Lista de Mousepads</h1>
+    <a class="btn btn-primary mt-3" href="{% url 'mousepad_create' %}">Crear Nuevo mousepad</a>
+  </div>
+  <div class="row">
+    {% for mousepad in mousepads %}
+    <div class="col-md-4 mb-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">{{ mousepad.nombre }}</h5>
+          <p class="card-text">
+            <strong>Descripción:</strong> {{ mousepad.descripcion }}<br>
+            <strong>Fecha:</strong> {{ mousepad.fecha }}<br>
+            <strong>Precio: </strong> ${{ mousepad.precio }}
+          </p>
+          <a class="btn btn-warning btn-sm" href="{% url 'mousepad_update' mousepad.pk %}">Editar</a>
+          <a class="btn btn-danger btn-sm float-end" href="{% url 'mousepad_delete' mousepad.pk %}">Eliminar</a>
+        </div>
+        <div class="card-footer text-center">
+          <a class="btn btn-info btn-sm" href="{% url 'mousepad_detail' mousepad.pk %}">Detalles</a>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+      <div class="alert alert-info text-center" role="alert">
+        No hay Mousepads disponibles.
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
