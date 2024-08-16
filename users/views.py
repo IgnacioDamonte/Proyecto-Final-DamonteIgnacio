@@ -52,7 +52,7 @@ def editar_usuario(request):
                 avatar.save()
                 
             formulario.save()
-            return render(request, "myapp1/index.html")
+            return render(request, "app/index.html")
         else:
             # Si el formulario no es válido, renderiza la misma página con errores
             return render(request, "users/editar_usuario.html", {"form": formulario})
