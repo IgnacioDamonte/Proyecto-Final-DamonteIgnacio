@@ -1,0 +1,54 @@
+{% extends "app/base.html" %}
+
+{% block title %}{{ producto.nombre }} — CompuGaming{% endblock %}
+
+{% block content %}
+<section class="form-page">
+  <div class="container">
+    <div class="detail-card detail-card-wide">
+      <div class="detail-gallery">
+        {% with imagenes=producto.imagenes.all %}
+          {% if imagenes %}
+            <div class="detail-gallery-main">
+              <img src="{{ imagenes.0.imagen.url }}" alt="{{ producto.nombre }}">
+            </div>
+            {% if imagenes|length > 1 %}
+            <div class="detail-gallery-thumbs">
+              {% for img in imagenes %}
+                <img src="{{ img.imagen.url }}" alt="{{ producto.nombre }}">
+              {% endfor %}
+            </div>
+            {% endif %}
+          {% else %}
+            <div class="detail-gallery-main detail-gallery-empty">Sin fotos cargadas</div>
+          {% endif %}
+        {% endwith %}
+      </div>
+
+      <div class="detail-info">
+        {% if producto.get_tipo_display %}<span class="detail-tag">{{ producto.get_tipo_display }}</span>{% endif %}
+        <h1>{{ producto.nombre }}</h1>
+
+        <div class="detail-row">
+          <p class="detail-row-label">Descripción</p>
+          <p class="detail-row-value">{{ producto.descripcion|default:"Sin descripción cargada." }}</p>
+        </div>
+        <div class="detail-row">
+          <p class="detail-row-label">Precio</p>
+          <p class="detail-price">${{ producto.precio }}</p>
+        </div>
+
+        <form method="post" action="{% url 'agregar_al_carrito' tipo=tipo pk=producto.pk %}" style="margin-top:20px;">
+          {% csrf_token %}
+          <button type="submit" class="btn-primary btn-block">Agregar al carrito</button>
+        </form>
+
+        <div class="detail-actions">
+          <a class="btn-outline" href="{% url 'producto_list' tipo=tipo %}">← Volver a {{ plural|lower }}</a>
+          <a class="btn-outline" href="{% url 'producto_update' tipo=tipo pk=producto.pk %}">Editar</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

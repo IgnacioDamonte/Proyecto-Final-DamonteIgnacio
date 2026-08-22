@@ -1,29 +1,27 @@
 {% extends "app/base.html" %}
 
-{% block title %}Iniciar sesión — CompuGaming{% endblock %}
+{% block title %}{{ title }} — CompuGaming{% endblock %}
 
 {% block content %}
 <section class="form-page">
   <div class="container">
     <div class="form-card">
-      <h1>Iniciar sesión</h1>
-      {% if msg_login %}<p class="form-msg">{{ msg_login }}</p>{% endif %}
-      <form method="post" action="{% url 'Login' %}">
+      <h1>{{ title }}</h1>
+      <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {% for field in form %}
         <div class="field-group">
           {{ field.label_tag }}
           {{ field }}
+          {% if field.help_text %}<p class="field-help">{{ field.help_text }}</p>{% endif %}
           {% if field.errors %}<p class="field-error">{{ field.errors|striptags }}</p>{% endif %}
         </div>
         {% endfor %}
         <div class="form-actions">
-          <button type="submit" class="btn-primary btn-block">Ingresar</button>
+          <button type="submit" class="btn-primary">Guardar</button>
+          <a class="btn-outline" href="{% url 'producto_list' tipo=tipo %}">Cancelar</a>
         </div>
       </form>
-      <p style="text-align:center; margin-top:18px; font-size:13px; color:var(--muted);">
-        ¿No tenés cuenta? <a href="{% url 'Register' %}" style="color:var(--accent);">Registrate</a>
-      </p>
     </div>
   </div>
 </section>

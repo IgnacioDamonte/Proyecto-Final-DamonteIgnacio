@@ -1,224 +1,149 @@
-from django.http import HttpResponseNotFound
-from django.shortcuts import render, redirect
-from .models import Teclado, Mouse, Auricular, Mousepad
-from .forms import TecladoForm, MouseForm, AuricularForm, MousepadForm
-from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.http import Http404
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
-# Vistas para Teclado
+from .catalog import PRODUCT_TYPES
+from .models import ImagenProducto
+from .cart import Cart
+
 
 def inicio(request):
     return render(request, 'app/index.html')
 
 
-@login_required
-def teclado_list(request):
-    teclados = Teclado.objects.all()
-    return render(request, 'app/teclado_list.html', {'teclados': teclados})
+class ProductTypeMixin:
+    """Resuelve el tipo de producto (teclado/mouse/etc.) a partir de la URL."""
 
-@login_required
-def teclado_detail(request, pk):
-    try:
-        teclado = Teclado.objects.get(pk=pk)
-    except Teclado.DoesNotExist:
-        return HttpResponseNotFound("Teclado no encontrada")
-    return render(request, 'app/teclado_detail.html', {'teclado': teclado})
+    def dispatch(self, request, *args, **kwargs):
+        tipo = kwargs.get('tipo')
+        config = PRODUCT_TYPES.get(tipo)
+        if config is None:
+            raise Http404('Categoría de producto no encontrada.')
+        self.product_type = tipo
+        self.product_config = config
+        self.model = config['model']
+        return super().dispatch(request, *args, **kwargs)
 
-@login_required
-def teclado_create(request):
-    if request.method == "POST":
-        form = TecladoForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('teclado_list')
-    else:
-        form = TecladoForm()
-    return render(request, 'app/teclado_form.html', {'form': form, 'title': 'Crear Teclado'})
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['tipo'] = self.product_type
+        context['singular'] = self.product_config['singular']
+        context['plural'] = self.product_config['plural']
+        return context
 
-@login_required
-def teclado_update(request, pk):
-    try:
-        teclado = Teclado.objects.get(pk=pk)
-    except Teclado.DoesNotExist:
-        return HttpResponseNotFound("Teclado no encontrado")
-    
-    if request.method == "POST":
-        form = TecladoForm(request.POST, instance=teclado)
-        if form.is_valid():
-            form.save()
-            return redirect('teclado_list')
-    else:
-        form = TecladoForm(instance=teclado)
-    return render(request, 'app/teclado_form.html', {'form': form, 'title': 'Actualizar Teclado'})
+    def get_success_url(self):
+        return reverse('producto_list', kwargs={'tipo': self.product_type})
 
-@login_required
-def teclado_delete(request, pk):
-    try:
-        teclado = Teclado.objects.get(pk=pk)
-    except Teclado.DoesNotExist:
-        return HttpResponseNotFound("Teclado no encontrada")
-    
-    if request.method == "POST":
-        teclado.delete()
-        return redirect('teclado_list')
-    return render(request, 'app/teclado_confirm_delete.html', {'teclado': teclado})
 
-# Vistas para Mouse
-@login_required
-def mouse_list(request):
-    mouses = Mouse.objects.all()
-    return render(request, 'app/mouse_list.html', {'mouses': mouses})
+class ProductoListView(LoginRequiredMixin, ProductTypeMixin, ListView):
+    template_name = 'app/producto_list.html'
+    context_object_name = 'productos'
 
-@login_required
-def mouse_detail(request, pk):
-    try:
-        mouse = Mouse.objects.get(pk=pk)
-        print(mouse)
-    except Mouse.DoesNotExist:
-        return HttpResponseNotFound("Mouse no encontrado")
-    return render(request, 'app/mouse_detail.html', {'mouse': mouse})
+    def get_queryset(self):
+        return self.model.objects.prefetch_related('imagenes').all()
 
-@login_required
-def mouse_create(request):
-    if request.method == "POST":
-        form = MouseForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('mouse_list')
-    else:
-        form = MouseForm()
-    return render(request, 'app/mouse_form.html', {'form': form, 'title': 'Crear Mouse'})
 
-@login_required
-def mouse_update(request, pk):
-    try:
-        mouse = Mouse.objects.get(pk=pk)
-    except Mouse.DoesNotExist:
-        return HttpResponseNotFound("Mouse no encontrado")
-    
-    if request.method == "POST":
-        form = MouseForm(request.POST, instance=mouse)
-        if form.is_valid():
-            form.save()
-            return redirect('mouse_list')
-    else:
-        form = MouseForm(instance=mouse)
-    return render(request, 'app/mouse_form.html', {'form': form, 'title': 'Actualizar Mouse'})
+class ProductoDetailView(LoginRequiredMixin, ProductTypeMixin, DetailView):
+    template_name = 'app/producto_detail.html'
+    context_object_name = 'producto'
 
-@login_required
-def mouse_delete(request, pk):
-    try:
-        mouse = Mouse.objects.get(pk=pk)
-    except Mouse.DoesNotExist:
-        return HttpResponseNotFound("Mouse no encontrado")
-    
-    if request.method == "POST":
-        mouse.delete()
-        return redirect('mouse_list')
-    return render(request, 'app/mouse_confirm_delete.html', {'mouse': mouse})
 
-# Vistas para Auricular
-@login_required
-def auricular_list(request):
-    auriculares = Auricular.objects.all()
-    return render(request, 'app/auricular_list.html', {'auriculares': auriculares})
+def _guardar_imagenes(producto, form):
+    """
+    Toma las imágenes subidas en el formulario (hasta 3) y las guarda
+    como filas de ImagenProducto asociadas al producto. Si el usuario
+    subió alguna imagen nueva, se reemplazan las anteriores.
+    """
+    nuevas = [img for img in form.imagenes_cargadas() if img]
+    if not nuevas:
+        return
+    producto.imagenes.all().delete()
+    for orden, archivo in enumerate(nuevas):
+        ImagenProducto.objects.create(producto=producto, imagen=archivo, orden=orden)
 
-@login_required
-def auricular_detail(request, pk):
-    try:
-        auricular = Auricular.objects.get(pk=pk)
-    except Auricular.DoesNotExist:
-        return HttpResponseNotFound("Auricular no encontrado")
-    return render(request, 'app/auricular_detail.html', {'auricular': auricular})
 
-@login_required
-def auricular_create(request):
-    if request.method == "POST":
-        form = AuricularForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('auricular_list')
-    else:
-        form = AuricularForm()
-    return render(request, 'app/auricular_form.html', {'form': form, 'title': 'Crear Auricular'})
+class ProductoCreateView(LoginRequiredMixin, ProductTypeMixin, CreateView):
+    template_name = 'app/producto_form.html'
 
-@login_required
-def auricular_update(request, pk):
-    try:
-        auricular = Auricular.objects.get(pk=pk)
-    except Auricular.DoesNotExist:
-        return HttpResponseNotFound("Auricular no encontrado")
-    
-    if request.method == "POST":
-        form = AuricularForm(request.POST, instance=auricular)
-        if form.is_valid():
-            form.save()
-            return redirect('auricular_list')
-    else:
-        form = AuricularForm(instance=auricular)
-    return render(request, 'app/auricular_form.html', {'form': form, 'title': 'Actualizar Auricular'})
+    def get_form_class(self):
+        return self.product_config['form_class']
 
-@login_required
-def auricular_delete(request, pk):
-    try:
-        auricular = Auricular.objects.get(pk=pk)
-    except Auricular.DoesNotExist:
-        return HttpResponseNotFound("Auricular no encontrado")
-    
-    if request.method == "POST":
-        auricular.delete()
-        return redirect('auricular_list')
-    return render(request, 'app/auricular_confirm_delete.html', {'auricular': auricular})
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = f"Nuevo {context['singular']}"
+        return context
 
-# Vistas para Mousepad
-@login_required
-def mousepad_list(request):
-    mousepads = Mousepad.objects.all()
-    return render(request, 'app/mousepad_list.html', {'mousepads': mousepads})
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        _guardar_imagenes(self.object, form)
+        return response
 
-@login_required
-def mousepad_detail(request, pk):
-    try:
-        mousepad = Mousepad.objects.get(pk=pk)
-    except Mousepad.DoesNotExist:
-        return HttpResponseNotFound("Mousepad no encontrada")
-    return render(request, 'app/mousepad_detail.html', {'mousepad': mousepad})
 
-@login_required
-def mousepad_create(request):
-    if request.method == "POST":
-        form = MousepadForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('mousepad_list')
-    else:
-        form = MousepadForm()
-    return render(request, 'app/mousepad_form.html', {'form': form, 'title': 'Crear Mousepad'})
+class ProductoUpdateView(LoginRequiredMixin, ProductTypeMixin, UpdateView):
+    template_name = 'app/producto_form.html'
 
-@login_required
-def mousepad_update(request, pk):
-    try:
-        mousepad = Mousepad.objects.get(pk=pk)
-    except Mousepad.DoesNotExist:
-        return HttpResponseNotFound("Mousepad no encontrada")
-    
-    if request.method == "POST":
-        form = MousepadForm(request.POST, instance=mousepad)
-        if form.is_valid():
-            form.save()
-            return redirect('mousepad_list')
-    else:
-        form = MousepadForm(instance=mousepad)
-    return render(request, 'app/mousepad_form.html', {'form': form, 'title': 'Actualizar Mousepad'})
+    def get_form_class(self):
+        return self.product_config['form_class']
 
-@login_required
-def mousepad_delete(request, pk):
-    try:
-        mousepad = Mousepad.objects.get(pk=pk)
-    except Mousepad.DoesNotExist:
-        return HttpResponseNotFound("Mousepad no encontrada")
-    
-    if request.method == "POST":
-        mousepad.delete()
-        return redirect('mousepad_list')
-    return render(request, 'app/mousepad_confirm_delete.html', {'mousepad': mousepad})
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = f"Editar {context['singular']}"
+        return context
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        _guardar_imagenes(self.object, form)
+        return response
+
+
+class ProductoDeleteView(LoginRequiredMixin, ProductTypeMixin, DeleteView):
+    template_name = 'app/producto_confirm_delete.html'
+    context_object_name = 'producto'
+
+
+# ---- Carrito de compras ----
+
+def agregar_al_carrito(request, tipo, pk):
+    config = PRODUCT_TYPES.get(tipo)
+    if config is None:
+        raise Http404('Categoría de producto no encontrada.')
+    producto = get_object_or_404(config['model'], pk=pk)
+    cart = Cart(request)
+    cart.add(tipo, producto.pk)
+    messages.success(request, f'"{producto.nombre}" se agregó al carrito.')
+    return redirect(request.META.get('HTTP_REFERER') or 'producto_list', tipo=tipo)
+
+
+def ver_carrito(request):
+    cart = Cart(request)
+    return render(request, 'app/carrito.html', {
+        'items': cart.items(),
+        'total': cart.total(),
+    })
+
+
+def actualizar_carrito(request, tipo, pk):
+    if request.method == 'POST':
+        try:
+            cantidad = int(request.POST.get('cantidad', 1))
+        except ValueError:
+            cantidad = 1
+        Cart(request).set_quantity(tipo, pk, cantidad)
+    return redirect('ver_carrito')
+
+
+def eliminar_del_carrito(request, tipo, pk):
+    Cart(request).remove(tipo, pk)
+    return redirect('ver_carrito')
+
+
+def finalizar_compra(request):
+    cart = Cart(request)
+    if request.method == 'POST' and cart.count() > 0:
+        cart.clear()
+        messages.success(request, '¡Gracias por tu compra! Este es un proyecto de portfolio, así que el pago no se procesa de verdad — pero el carrito funcionó de punta a punta.')
+        return redirect('ver_carrito')
+    return redirect('ver_carrito')

@@ -1,0 +1,61 @@
+{% extends "app/base.html" %}
+
+{% block title %}Tu carrito — CompuGaming{% endblock %}
+
+{% block content %}
+<section class="catalog-hero">
+  <div class="container">
+    <h1>Tu carrito</h1>
+    <p>{{ items|length }} producto{{ items|length|pluralize }} agregado{{ items|length|pluralize }}.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    {% if items %}
+    <div class="cart-list">
+      {% for item in items %}
+      <div class="cart-row">
+        <div class="cart-row-img">
+          {% if item.imagen %}
+            <img src="{{ item.imagen }}" alt="{{ item.nombre }}">
+          {% else %}
+            <span class="cart-row-img-placeholder">Sin foto</span>
+          {% endif %}
+        </div>
+        <div class="cart-row-info">
+          <p class="cart-row-name">{{ item.nombre }}</p>
+          <p class="cart-row-price">${{ item.precio }} c/u</p>
+        </div>
+        <form method="post" action="{% url 'actualizar_carrito' tipo=item.tipo pk=item.pk %}" class="cart-row-qty">
+          {% csrf_token %}
+          <input type="number" name="cantidad" value="{{ item.cantidad }}" min="1" class="field-input">
+          <button type="submit" class="btn-outline btn-sm">Actualizar</button>
+        </form>
+        <p class="cart-row-subtotal">${{ item.subtotal }}</p>
+        <form method="post" action="{% url 'eliminar_del_carrito' tipo=item.tipo pk=item.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="cart-row-remove" aria-label="Quitar {{ item.nombre }}">✕</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="cart-summary">
+      <div class="cart-total-row">
+        <span>Total</span>
+        <span>${{ total }}</span>
+      </div>
+      <form method="post" action="{% url 'finalizar_compra' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn-primary">Finalizar compra</button>
+      </form>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      Tu carrito está vacío. <a href="{% url 'producto_list' tipo='teclados' %}">Ver catálogo →</a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

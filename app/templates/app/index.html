@@ -1,81 +1,63 @@
-<!DOCTYPE html>
 {% extends "app/base.html" %}
-{% load static %}
+
+{% block title %}CompuGaming — Accesorios gamer{% endblock %}
 
 {% block content %}
-<header class="masthead text-center text-white">
-  <div class="masthead-content">
-    <div class="container px-5">
-      <h1 class="masthead-heading mb-0">Compu Gaming</h1>
-      <h2 class="masthead-subheading mb-0">Los mejores accesorios para tu pc gamer</h2>
-      <a class="btn btn-primary btn-xl rounded-pill mt-5" href="#scroll">Explorar</a>
-    </div>
+<section class="hero">
+  <div class="container">
+    <span class="hero-eyebrow">Catálogo de accesorios gamer</span>
+    <h1>CompuGaming</h1>
+    <p>Teclados, mouses, auriculares y mousepads. Un catálogo simple para gestionar altas, bajas y modificaciones de producto.</p>
+    <a class="btn-primary" href="{% url 'producto_list' tipo='teclados' %}">Ver catálogo</a>
   </div>
-  <div class="bg-circle-1 bg-circle"></div>
-  <div class="bg-circle-2 bg-circle"></div>
-  <div class="bg-circle-3 bg-circle"></div>
-  <div class="bg-circle-4 bg-circle"></div>
-</header>
-<!-- Content section 1-->
+</section>
 
-
-
-<section id="scroll">
-  <div class="container px-5">
-    <div class="row gx-5 align-items-center">
-      <div class="col-lg-6 order-lg-2">
-        <div class="p-5"><img class="img-fluid rounded-circle" src="{% static 'app/assets/img/0001.jpg' %}"
-            alt="..." /></div>
-      </div>
-      <div class="col-lg-6 order-lg-1">
-        <div class="p-5">
-          <h2 class="display-4">Sobre mi</h2>
-          <p>Mi nombre es Ignacio Damonte, tengo 25 años y soy un apasionado de la programación. El año pasado completé mis estudios en programación full stack, lo que me permitió desarrollar habilidades tanto en el frontend como en el backend. Estoy muy entusiasmado por la oportunidad de iniciar mi carrera profesional en el mundo de la programación. Me motiva la posibilidad de aplicar mis conocimientos en un entorno laboral real, aprender de expertos en el campo y contribuir al éxito de los proyectos en los que participe. Estoy convencido de que mi dedicación y entusiasmo me permitirán crecer y aportar valor en este apasionante camino.</p>
-        </div>
-      </div>
+<section class="bio-section">
+  <div class="container bio-grid">
+    <span class="bio-index">01</span>
+    <div>
+      <h2>Sobre mí</h2>
+      <p>
+        Mi nombre es Ignacio Damonte, tengo 25 años y soy un apasionado de la programación. El año
+        pasado completé mis estudios en programación full stack, lo que me permitió desarrollar
+        habilidades tanto en el frontend como en el backend. Estoy muy entusiasmado por la
+        oportunidad de iniciar mi carrera profesional en el mundo de la programación. Me motiva la
+        posibilidad de aplicar mis conocimientos en un entorno laboral real, aprender de expertos en
+        el campo y contribuir al éxito de los proyectos en los que participe.
+      </p>
     </div>
   </div>
 </section>
-<!-- Content section 2-->
-<section>
-  <div class="container px-5">
-    <div class="row gx-5 align-items-center">
-      <div class="col-lg-6">
-        <div class="p-5"><img class="img-fluid rounded-circle" src="{% static 'app/assets/img/0002.jpg' %}"
-            alt="..." /></div>
-      </div>
-      <div class="col-lg-6">
-        <div class="p-5">
-          <h2 class="display-4">Experiencia personal  del curso de python</h2>
-          <p>Durante mi curso de Python, que duró seis meses, disfruté mucho del proceso de aprendizaje. Desde el principio, me sentí cómodo y apoyado, sabiendo que si tenía algún problema o duda, siempre podía contar con la ayuda de los profesores y tutores. Decidí inscribirme en este curso porque me apasiona la parte backend del desarrollo y quería sumar Python a mi conjunto de habilidades, ya que es un lenguaje con gran oferta y demanda en el mercado. Esta experiencia no solo me permitió adquirir conocimientos técnicos, sino que también me reforzó la idea de que con el apoyo adecuado, cualquier desafío puede ser superado..</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-<!-- Content section 3-->
-<section>
-  <div class="container px-5">
-    <div class="row gx-5 align-items-center">
-      <div class="col-lg-6 order-lg-2">
-        <div class="p-5"><img class="img-fluid rounded-circle" src="{% static 'app/assets/img/descarga.jpg' %}"
-            alt="..." /></div>
-      </div>
-      <div class="col-lg-6 order-lg-1">
-        <div class="p-5">
-          <h2 class="display-4">Experiencia personal con coderhouse.</h2>
-          <p>El año pasado, completé el curso de Full Stack en Coderhouse, lo cual fue una experiencia increíble tanto a nivel personal como profesional. Durante ese año, aprendí muchísimo y logré adquirir una sólida base en desarrollo web. De igual manera, en mi curso de Python, me sentí muy a gusto con la plataforma y con el equipo de Coderhouse. Siempre que surgía un problema o duda, sabía que podía contar con ellos, ya que son muy profesionales y comprometidos con el aprendizaje de sus estudiantes. Esta experiencia me ha dejado una excelente impresión de la calidad educativa y el apoyo continuo que ofrece Coderhouse.
 
-            .</p>
-        </div>
-      </div>
+<section class="bio-section">
+  <div class="container bio-grid">
+    <span class="bio-index">02</span>
+    <div>
+      <h2>Experiencia con el curso de Python</h2>
+      <p>
+        Durante mi curso de Python, que duró seis meses, disfruté mucho del proceso de aprendizaje.
+        Desde el principio me sentí cómodo y apoyado, sabiendo que si tenía algún problema o duda
+        siempre podía contar con la ayuda de los profesores y tutores. Decidí inscribirme en este
+        curso porque me apasiona la parte backend del desarrollo y quería sumar Python a mi conjunto
+        de habilidades, ya que es un lenguaje con gran oferta y demanda en el mercado.
+      </p>
     </div>
   </div>
 </section>
-<!-- Footer-->
-<footer class="py-5 bg-black">
-  <div class="container px-5">
-    <p class="m-0 text-center text-white small">Copyright &copy; Compu Gmaing 2024</p>
+
+<section class="bio-section" style="border-bottom:none;">
+  <div class="container bio-grid">
+    <span class="bio-index">03</span>
+    <div>
+      <h2>Experiencia con Coderhouse</h2>
+      <p>
+        El año pasado completé el curso de Full Stack en Coderhouse, lo cual fue una experiencia
+        increíble tanto a nivel personal como profesional. Durante ese año aprendí muchísimo y logré
+        adquirir una sólida base en desarrollo web. Siempre que surgía un problema o duda, sabía que
+        podía contar con el equipo de Coderhouse — son muy profesionales y comprometidos con el
+        aprendizaje de sus estudiantes.
+      </p>
+    </div>
   </div>
-</footer>
+</section>
 {% endblock %}

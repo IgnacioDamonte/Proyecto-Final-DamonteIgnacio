@@ -1,21 +1,27 @@
-{% extends 'app/base.html' %}
+{% extends "app/base.html" %}
 
-{% block title %} Editar Usuario {% endblock %}
+{% block title %}Editar cuenta — CompuGaming{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-center" style="height: 80vh; align-items: center;">
-  <div class="d-flex flex-column p-4 border rounded shadow-sm bg-light">
-    <h2 class="mb-4 text-center">Editar Usuario</h2>
-    <form action="" method="POST" enctype="multipart/form-data">
-      {% csrf_token %}
-      <table class="mb-3 w-100">
-        {{ form.as_table }}
-      </table>
-      <div class="d-flex justify-content-between">
-        <a class="btn btn-secondary me-2" href="{% url 'CambiarPass' %}">Cambiar Contraseña</a>
-        <input type="submit" value="Actualizar" class="btn btn-primary">
-      </div>
-    </form>
+<section class="form-page">
+  <div class="container">
+    <div class="form-card">
+      <h1>Editar cuenta</h1>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="field-group">
+          {{ field.label_tag }}
+          {{ field }}
+          {% if field.errors %}<p class="field-error">{{ field.errors|striptags }}</p>{% endif %}
+        </div>
+        {% endfor %}
+        <div class="form-actions">
+          <a class="btn-outline" href="{% url 'CambiarPass' %}">Cambiar contraseña</a>
+          <button type="submit" class="btn-primary">Guardar cambios</button>
+        </div>
+      </form>
+    </div>
   </div>
-</div>
+</section>
 {% endblock %}

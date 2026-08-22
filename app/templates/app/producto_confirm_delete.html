@@ -1,0 +1,20 @@
+{% extends "app/base.html" %}
+
+{% block title %}Eliminar {{ producto.nombre }} — CompuGaming{% endblock %}
+
+{% block content %}
+<section class="form-page">
+  <div class="container">
+    <div class="form-card confirm-card">
+      <h1>¿Eliminar "{{ producto.nombre }}" del catálogo?</h1>
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-actions">
+          <button type="submit" class="btn-danger">Sí, eliminar</button>
+          <a class="btn-outline" href="{% url 'producto_list' tipo=tipo %}">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

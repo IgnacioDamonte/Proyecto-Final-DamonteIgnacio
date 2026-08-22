@@ -1,0 +1,58 @@
+{% extends "app/base.html" %}
+
+{% block title %}{{ plural }} — CompuGaming{% endblock %}
+
+{% block content %}
+<section class="catalog-hero">
+  <div class="container">
+    <h1>{{ plural }}</h1>
+    <p>{{ productos|length }} producto{{ productos|length|pluralize }} en catálogo.</p>
+    <div class="catalog-actions">
+      <a class="btn-primary" href="{% url 'producto_create' tipo=tipo %}">+ Nuevo {{ singular|lower }}</a>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    {% if productos %}
+    <div class="product-grid">
+      {% for producto in productos %}
+      <article class="product-card">
+        {% with imagen=producto.imagenes.first %}
+        <div class="product-card-img">
+          {% if imagen %}
+            <img src="{{ imagen.imagen.url }}" alt="{{ producto.nombre }}" loading="lazy">
+          {% else %}
+            <span class="product-card-img-placeholder">Sin foto</span>
+          {% endif %}
+        </div>
+        {% endwith %}
+        <div class="product-card-head">
+          <span class="product-card-name">{{ producto.nombre }}</span>
+          {% if producto.get_tipo_display %}<span class="product-card-tag">{{ producto.get_tipo_display }}</span>{% endif %}
+        </div>
+        <p class="product-card-desc{% if not producto.descripcion %} is-empty{% endif %}">
+          {{ producto.descripcion|default:"Sin descripción cargada."|truncatewords:16 }}
+        </p>
+        <div class="product-card-foot">
+          <span class="product-card-price">${{ producto.precio }}</span>
+          <div class="product-card-actions">
+            <a class="btn-outline btn-sm" href="{% url 'producto_detail' tipo=tipo pk=producto.pk %}">Ver</a>
+            <form method="post" action="{% url 'agregar_al_carrito' tipo=tipo pk=producto.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="btn-icon" aria-label="Agregar {{ producto.nombre }} al carrito">+</button>
+            </form>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      Todavía no hay {{ plural|lower }} cargados. <a href="{% url 'producto_create' tipo=tipo %}">Agregar el primero →</a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
